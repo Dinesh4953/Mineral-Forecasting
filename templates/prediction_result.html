@@ -1,0 +1,21 @@
+<h3>🔮 Forecast Result</h3>
+
+<p>
+<b>Mineral:</b> {{ mineral }} |
+<b>Metric:</b> {{ metric }} |
+<b>Trade:</b> {{ trade }}
+</p>
+
+<table border="1">
+<tr>
+  <th>Period</th>
+  <th>Predicted Value</th>
+</tr>
+
+{% for r in table %}
+<tr>
+  <td>{{ r.period }}</td>
+  <td>{{ r.predicted_value }}</td>
+</tr>
+{% endfor %}
+</table>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Commodity wise – Detailed Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container py-4">
+
+<!-- ================= HEADER ================= -->
+<div class="mb-4">
+    <h2 class="fw-bold">📊 Commodity-wise Detailed Analysis</h2>
+    <p class="text-muted">
+        Analyze trade trends, growth metrics, and visual insights across minerals
+    </p>
+</div>
+
+<!-- ================= FILTERS ================= -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        🔍 Filter Selection
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/detailed" class="row g-3">
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Trade</label>
+                <select name="trade" class="form-select">
+                    <option value="Export" {% if trade=="Export" %}selected{% endif %}>Export</option>
+                    <option value="Import" {% if trade=="Import" %}selected{% endif %}>Import</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Mineral</label>
+                <select name="mineral" class="form-select">
+                    <option value="Lithium" {% if mineral=="Lithium" %}selected{% endif %}>Lithium</option>
+                    <option value="Graphite" {% if mineral=="Graphite" %}selected{% endif %}>Graphite</option>
+                    <option value="Copper" {% if mineral=="Copper" %}selected{% endif %}>Copper</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Year</label>
+                <select name="year" class="form-select">
+                    {% for y in available_years %}
+                    <option value="{{ y }}" {% if year == y %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Columns</label>
+                <select name="columns" class="form-select" multiple required>
+                    <option value="year_cost" {% if selected_columns and "year_cost" in selected_columns %}selected{% endif %}>Year Cost</option>
+                    <option value="yearly_quantity" {% if selected_columns and "yearly_quantity" in selected_columns %}selected{% endif %}>Yearly Quantity</option>
+                    <option value="monthly_cost" {% if selected_columns and "monthly_cost" in selected_columns %}selected{% endif %}>Monthly Cost</option>
+                    <option value="month_quantity" {% if selected_columns and "month_quantity" in selected_columns %}selected{% endif %}>Monthly Quantity</option>
+                </select>
+            </div>
+
+            <div class="col-md-12 text-end">
+                <button class="btn btn-primary px-4 mt-2">
+                    Apply Filters
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- ================= GROWTH RESULT ================= -->
+{% if growth_result is not none %}
+<div class="alert alert-info shadow-sm">
+    📈 Growth Rate ({{ growth_label }}):
+    <strong>{{ growth_result }}%</strong>
+</div>
+{% elif growth_label %}
+<div class="alert alert-warning shadow-sm">
+    {{ growth_label }}
+</div>
+{% endif %}
+
+<!-- ================= DATA TABLE ================= -->
+{% if table %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+        📄 Detailed Data Table
+    </div>
+    <div class="card-body p-0 table-responsive">
+        <table class="table table-bordered table-striped mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    {% for col in table[0].keys() %}
+                    <th class="text-center">{{ col.replace("_"," ").title() }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table %}
+                <tr>
+                    {% for val in row.values() %}
+                    <td class="text-center">{{ val }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning shadow-sm">
+    No data available for the selected filters.
+</div>
+{% endif %}
+
+<!-- ================= GROWTH CALCULATOR ================= -->
+{% if table %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-info text-white">
+        📈 Growth Calculator
+    </div>
+    <div class="card-body">
+
+        <form method="POST" action="/detailed" class="row g-3">
+            <input type="hidden" name="calculate_growth" value="1">
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Growth Type</label>
+                <select name="growth_mode" class="form-select" onchange="toggleGrowthFields()">
+                    <option value="yearly">Yearly Growth</option>
+                    <option value="monthly">Monthly Growth</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Growth Mineral</label>
+                <select name="growth_mineral" class="form-select" required>
+                    <option value="">-- Select Mineral --</option>
+                    <option value="Lithium" {% if growth_mineral=="Lithium" %}selected{% endif %}>Lithium</option>
+                    <option value="Graphite" {% if growth_mineral=="Graphite" %}selected{% endif %}>Graphite</option>
+                    <option value="Copper" {% if growth_mineral=="Copper" %}selected{% endif %}>Copper</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Growth Column</label>
+                <select name="growth_column" class="form-select" required>
+                    <option value="">-- Select --</option>
+                    <option value="year_cost">Year Cost</option>
+                    <option value="yearly_quantity">Yearly Quantity</option>
+                    <option value="monthly_cost">Monthly Cost</option>
+                    <option value="month_quantity">Monthly Quantity</option>
+                </select>
+            </div>
+
+            <!-- MONTHLY -->
+            <div id="monthly-fields" class="row g-3 mt-1" style="display:none;">
+                <div class="col-md-2">
+                    <label class="form-label">Start Month</label>
+                    <select name="start_month" class="form-select">
+                        <option>Jan</option><option>Feb</option><option>Mar</option>
+                        <option>Apr</option><option>May</option><option>Jun</option>
+                        <option>Jul</option><option>Aug</option><option>Sep</option>
+                        <option>Oct</option><option>Nov</option><option>Dec</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Start Year</label>
+                    <select name="start_year_monthly" class="form-select">
+                        <option value="">-- Select --</option>
+                        {% for y in growth_available_years %}
+                        <option value="{{ y }}">{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">End Month</label>
+                    <select name="end_month" class="form-select">
+                        <option>Jan</option><option>Feb</option><option>Mar</option>
+                        <option>Apr</option><option>May</option><option>Jun</option>
+                        <option>Jul</option><option>Aug</option><option>Sep</option>
+                        <option>Oct</option><option>Nov</option><option>Dec</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">End Year</label>
+                    <select name="end_year_monthly" class="form-select">
+                        <option value="">-- Select --</option>
+                        {% for y in available_years %}
+                        <option value="{{ y }}">{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- YEARLY -->
+            <div id="yearly-fields" class="row g-3 mt-1">
+                <div class="col-md-2">
+                    <label class="form-label">Start Year</label>
+                    <select name="start_year_yearly" class="form-select" required>
+                        <option value="">-- Select --</option>
+                        {% for y in available_years %}
+                        <option value="{{ y }}">{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">End Year</label>
+                    <select name="end_year_yearly" class="form-select" required>
+                        <option value="">-- Select --</option>
+                        {% for y in available_years %}
+                        <option value="{{ y }}">{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-12 text-end">
+                <button class="btn btn-success px-4">
+                    Calculate Growth
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endif %}
+
+
+
+<!-- ================= GRAPH ANALYSIS ================= -->
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-dark text-white">
+        📊 Graph Builder
+    </div>
+    <div class="card-body">
+
+        <form method="POST" action="/detailed" class="row g-3">
+
+            <!-- GRAPH MINERAL -->
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Mineral</label>
+                <select name="graph_mineral" class="form-select" required>
+                    <option value="">-- Select --</option>
+                    <option value="Lithium" {% if graph_mineral=="Lithium" %}selected{% endif %}>Lithium</option>
+                    <option value="Graphite" {% if graph_mineral=="Graphite" %}selected{% endif %}>Graphite</option>
+                    <option value="Copper" {% if graph_mineral=="Copper" %}selected{% endif %}>Copper</option>
+                </select>
+            </div>
+
+            <!-- GRAPH YEAR -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Year</label>
+                <select name="graph_year" class="form-select" required>
+                    {% for y in graph_available_years %}
+                    <option value="{{ y }}">{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- GRAPH MONTHS -->
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">
+                    Months
+                    <small class="text-muted">(Optional)</small>
+                </label>
+                <select name="graph_months" class="form-select" multiple>
+                    <option>Jan</option><option>Feb</option><option>Mar</option>
+                    <option>Apr</option><option>May</option><option>Jun</option>
+                    <option>Jul</option><option>Aug</option><option>Sep</option>
+                    <option>Oct</option><option>Nov</option><option>Dec</option>
+                </select>
+            </div>
+
+            <!-- GRAPH COLUMNS -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Columns</label>
+                <select name="graph_columns" class="form-select" multiple required>
+                    <option value="monthly_cost" {% if "monthly_cost" in graph_columns %}selected{% endif %}>Monthly Cost</option>
+                    <option value="month_quantity" {% if "month_quantity" in graph_columns %}selected{% endif %}>Monthly Quantity</option>
+                    <option value="year_cost" {% if "year_cost" in graph_columns %}selected{% endif %}>Year Cost</option>
+                    <option value="yearly_quantity" {% if "yearly_quantity" in graph_columns %}selected{% endif %}>Yearly Quantity</option>
+                </select>
+            </div>
+
+            <!-- UPDATE GRAPH TYPES -->
+            <div class="col-md-12 text-end mt-2">
+                <button class="btn btn-outline-primary px-4">
+                    Update Graph Options
+                </button>
+            </div>
+        </form>
+
+        {% if valid_graphs %}
+        <hr class="my-4">
+
+        <form method="POST" action="/plot" class="row g-3">
+
+            <!-- hidden carry-over -->
+            <input type="hidden" name="graph_mineral" value="{{ graph_mineral }}">
+            <input type="hidden" name="graph_year" value="{{ request.form.graph_year }}">
+
+            {% for c in graph_columns %}
+            <input type="hidden" name="graph_columns" value="{{ c }}">
+            {% endfor %}
+
+            <!-- GRAPH TYPES -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Graph Type(s)</label>
+                <select name="graph_types" class="form-select" multiple required>
+                    {% for g in valid_graphs %}
+                    <option value="{{ g }}">{{ g.replace("_"," ").title() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-12 text-end">
+                <button class="btn btn-dark px-4">
+                    Generate Graphs
+                </button>
+            </div>
+
+        </form>
+        {% endif %}
+
+    </div>
+</div>
+
+
+
+
+
+
+<!-- ================= SCRIPTS ================= -->
+<script>
+function toggleGrowthFields() {
+  const mode = document.querySelector('[name="growth_mode"]').value;
+  document.getElementById("monthly-fields").style.display =
+    mode === "monthly" ? "flex" : "none";
+  document.getElementById("yearly-fields").style.display =
+    mode === "yearly" ? "flex" : "none";
+}
+toggleGrowthFields();
+
+// auto-submit for mineral & trade
+document.querySelector('[name="mineral"]').addEventListener('change', function () {
+  this.form.submit();
+});
+document.querySelector('[name="trade"]').addEventListener('change', function () {
+  this.form.submit();
+});
+</script>
+
+</body>
+</html>

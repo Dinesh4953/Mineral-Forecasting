@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Commodity Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container py-5">
+
+    <!-- HEADER -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">📦 Commodity Trade Analytics Dashboard</h2>
+        <p class="text-muted">
+            Explore country-wise trade, detailed trends, and future forecasts for key minerals
+        </p>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="row text-center mb-5">
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">🌍 Country-wise Analysis</h5>
+                    <p class="card-text">
+                        View top importing and exporting countries for each commodity.
+                    </p>
+                    <a href="/countries" class="btn btn-primary w-100">
+                        Commodity wise – Countries
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Detailed Analysis</h5>
+                    <p class="card-text">
+                        Analyze yearly & monthly quantity, cost, and growth trends.
+                    </p>
+                    <a href="/detailed" class="btn btn-success w-100">
+                        Commodity wise – Detailed
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">🔮 Forecast & Prediction</h5>
+                    <p class="card-text">
+                        Predict future trends based on historical trade data.
+                    </p>
+                    <a href="/predict" class="btn btn-dark w-100">
+                        Commodity Forecast (Prediction)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MINERAL INFORMATION -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            🧪 About the Commodities
+        </div>
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <h5>🔋 Lithium</h5>
+                    <p class="mb-1">
+                        <strong>Category:</strong> Critical Mineral / Battery Material
+                    </p>
+                    <p class="mb-1">
+                        <strong>Usage:</strong> EV batteries, energy storage, electronics
+                    </p>
+                    <p>
+                        <strong>HS Code:</strong> <span class="badge bg-secondary">28252000</span><br>
+                        <small class="text-muted">Lithium Oxide & Lithium Hydroxide</small>
+                    </p>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <h5>✏️ Graphite</h5>
+                    <p class="mb-1">
+                        <strong>Category:</strong> Industrial Mineral
+                    </p>
+                    <p class="mb-1">
+                        <strong>Usage:</strong> Batteries, lubricants, refractories, pencils
+                    </p>
+                    <p>
+                        <strong>HS Code:</strong> <span class="badge bg-secondary">25041000</span><br>
+                        <small class="text-muted">Natural Graphite</small>
+                    </p>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <h5>🔌 Copper</h5>
+                    <p class="mb-1">
+                        <strong>Category:</strong> Base Metal
+                    </p>
+                    <p class="mb-1">
+                        <strong>Usage:</strong> Electrical wiring, construction, electronics
+                    </p>
+                    <p>
+                        <strong>HS Code:</strong> <span class="badge bg-secondary">26030000</span><br>
+                        <small class="text-muted">Refined Copper (Cathodes)</small>
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="text-center mt-4 text-muted">
+        <small>
+            Data-driven commodity trade analysis | Academic & research use
+        </small>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Graphs</title>
+</head>
+<body>
+
+<h3>Generated Graphs</h3>
+
+{% for img in image_paths %}
+  <div style="margin-bottom:20px;">
+    <img src="/{{ img }}" style="width:50%;">
+  </div>
+{% endfor %}
+
+<a href="/detailed">⬅ Back</a>
+
+</body>
+</html>
